@@ -21,20 +21,89 @@ face_project/
 
 ---
 
-## ⚙️ Configuration (`config.json`)
+## 🛠️ Full Setup Instructions
+
+Follow these steps to install and configure the system from scratch.
+
+---
+
+### 🧾 1. Install System Dependencies
+
+```bash
+sudo apt update && sudo apt upgrade -y
+sudo apt install python3 python3-pip python3-venv build-essential cmake libopenblas-dev liblapack-dev libx11-dev libgtk-3-dev libboost-all-dev ffmpeg -y
+```
+
+> These are required for `face_recognition`, `opencv-python`, and video processing.
+
+---
+
+### 📁 2. Set Up Project Directory
+
+```bash
+cd ~
+mkdir -p face_project/{known_faces,encodings,ha_tmp_share}
+cd face_project
+```
+
+Clone your project files or create them in this directory.
+
+---
+
+### 🐍 3. Create Virtual Environment
+
+```bash
+python3 -m venv face_env
+source face_env/bin/activate
+```
+
+---
+
+### 📦 4. Install Python Packages
+
+```bash
+pip install --upgrade pip
+pip install face_recognition opencv-python pillow python-dotenv requests
+```
+
+If you face issues with `dlib`,install it manually or try:
+
+```bash
+pip install dlib --verbose
+```
+
+---
+
+### 🔐 5. Create `.env` File
+
+At the root of `face_project`, create a `.env` file:
+
+```ini
+RTSP_URL=rtsp://your-camera-url
+HA_BASE_URL=http://homeassistant.local:8123
+HA_TOKEN=your_long_lived_token
+USERNAME=your_linux_username
+```
+
+---
+
+### ⚙️ 6. Configure `config.json`
+
+Update `config.json` like so:
 
 ```json
 {
   "camera": {
-    "rtsp_url": "rtsp://your-camera-stream",
+    "rtsp_url": "ENV_RTSP_URL",
     "timeout_sec": 5
   },
   "recognition": {
-    "tolerance": 0.5
+    "tolerance": 0.5,
+    "min_frames": 3
   },
   "home_assistant": {
-    "base_url": "http://localhhost_of_HomeAsistant:8123",
-    "token": "<LONG_LIVED_ACCESS_TOKEN>",
+    "base_url": "ENV_HA_BASE_URL",
+    "token": "ENV_HA_TOKEN",
     "known_face_sensor": "input_boolean.known_face_detected",
     "unknown_face_endpoint": "/api/webhook/unknown_face",
     "no_face_sensor": "input_boolean.no_face_detected"
@@ -84,15 +153,16 @@ python detect_face.py
 
 ### Shell Command (in `configuration.yaml`)
 
+* replace username and 192.168.xxx.xxx by yours, (local device ip) 
 ```yaml
 shell_command:
-  trigger_face_recognition: ssh -i /config/ssh/id_rsa -o 'StrictHostKeyChecking=no' username@192.168.50.124 'sudo /bin/systemctl start face_recognition.service'
+  trigger_face_recognition: ssh -i /config/ssh/id_rsa -o 'StrictHostKeyChecking=no' username@192.168.xxx.xxx 'sudo /bin/systemctl start face_recognition.service'
 ```
 
 Ensure key is copied:
 
 ```bash
-ssh-copy-id -i /config/ssh/id_rsa.pub username@192.168.50.124
+ssh-copy-id -i /config/ssh/id_rsa.pub username@192.168.xxx.xxx 
 ```
 
 ---
@@ -174,6 +244,8 @@ ssh-copy-id -i /config/ssh/id_rsa.pub username@192.168.50.124
 
 ## 🚧 systemd Setup (Ubuntu)
 
+Create `face_recognition.service` in `/etc/systemd/system/`:
+
 ```ini
 [Unit]
 Description=Face recognition detection triggered by HA
@@ -189,6 +261,8 @@ Restart=on-failure
 WantedBy=multi-user.target
 ```
 
+Enable it:
+
 ```bash
 sudo systemctl daemon-reexec
 sudo systemctl enable face_recognition.service
@@ -196,7 +270,7 @@ sudo systemctl enable face_recognition.service
 
 ---
 
-## 🚧 Samba Shared Folder Permissions
+## 🧩 Samba Shared Folder Permissions
 
 Ensure:
 

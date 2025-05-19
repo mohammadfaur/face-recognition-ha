@@ -1,0 +1,28 @@
+{
+  "camera": {
+    "rtsp_url": "ENV_RTSP_URL",
+    "timeout_sec": 5
+  },
+  "recognition": {
+    "tolerance": 0.5,
+    "min_frames": 3
+  },
+  "video": {
+    "fps": 10,
+    "codec": "mp4v"
+  },
+  "home_assistant": {
+    "base_url": "ENV_HA_BASE_URL",
+    "token": "ENV_HA_TOKEN",
+    "known_face_sensor": "input_boolean.known_person_detected",
+    "unknown_face_sensor": "input_boolean.unknown_face_detected",
+    "no_face_sensor": "input_boolean.no_face_detected"
+  },
+  "paths": {
+    "face_db": "ENV_HOME/face_project/face_db",
+    "encodings": "ENV_HOME/face_project/encodings/faces.pkl",
+    "log_file": "ENV_HOME/face_project/logs/events.log",
+    "unknown_face_output": "ENV_HOME/face_project/ha_tmp_share/",
+    "known_faces": "ENV_HOME/face_project/known_faces"
+  }
+}

@@ -1,0 +1,26 @@
+# Logs
+logs/
+*.log
+
+# Python cache
+__pycache__/
+*.py[cod]
+
+# dotenv environment variables
+.env
+.env.test
+
+# Dependency directories and build artifacts
+face_env/
+dlib/
+data/
+ha_tmp_share/
+encodings/
+known_faces/
+
+# System files
+.DS_Store
+
+# Editor-specific files
+*.swp
+*~
