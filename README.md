@@ -274,9 +274,81 @@ sudo systemctl enable face_recognition.service
 
 Ensure:
 
-* The folder `ha_tmp_share` is shared via Home Assistant (`/config/www/tmp`)
-* It's mounted on Ubuntu with read/write access by `username`
-* You can delete the video file from Ubuntu within 30 seconds
+- The folder `ha_tmp_share` is shared via Home Assistant (`/config/www/tmp`)
+- It's mounted on Ubuntu with read/write access by `username`
+- You can delete the video file from Ubuntu within 30 seconds
+
+---
+
+### 📦 Mounting the Shared Folder on Ubuntu
+
+Install required package:
+
+```bash
+sudo apt install cifs-utils -y
+```
+
+Create the mount point:
+
+```bash
+sudo mkdir -p /home/username/face_project/ha_tmp_share
+```
+
+Create a credentials file:
+
+```bash
+sudo nano /etc/samba_creds
+```
+
+Add the following (replace with your actual credentials):
+
+```
+username=homeassistant_user_in_samba_addon
+password=your_password_in_samba_addon
+```
+
+Secure the credentials file:
+
+```bash
+sudo chmod 600 /etc/samba_creds
+```
+
+Mount the shared folder, change homeassistant.local with homeassistant local ip, and username with your os username
+
+```bash
+sudo mount -t cifs //homeassistant.local/config/www/tmp /home/username/face_project/ha_tmp_share -o credentials=/etc/samba_creds,uid=$(id -u),gid=$(id -g),rw,iocharset=utf8,file_mode=0775,dir_mode=0775
+```
+
+---
+
+### 🔁 Auto-mount at Boot (via /etc/fstab)
+
+Edit fstab:
+
+```bash
+sudo nano /etc/fstab
+```
+
+Add this line (edit paths and host accordingly):
+
+```fstab
+//homeassistant.local/config/www/tmp  /home/username/face_project/ha_tmp_share  cifs  credentials=/etc/samba_creds,uid=1000,gid=1000,rw,iocharset=utf8,file_mode=0775,dir_mode=0775  0  0
+```
+
+Test it works:
+
+```bash
+sudo umount /home/username/face_project/ha_tmp_share
+sudo mount -a
+```
+
+Now the shared folder will auto-mount on reboot with the correct permissions.
+
+Ensure:
+
+- The folder `ha_tmp_share` is shared via Home Assistant (`/config/www/tmp`)
+- It's mounted on Ubuntu with read/write access by `username`
+- You can delete the video file from Ubuntu within 30 seconds
 
 ---
 
