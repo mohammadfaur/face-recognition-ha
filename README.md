@@ -354,7 +354,7 @@ Ensure:
 
 ## 📅 Timeline
 
-* 10s warm-up delay after HA triggers
+* 10s warm-up delay after HA triggers for test purposes
 * 10s video capture
 * Notification and video sent to HA
 * `unknown_latest.mp4` deleted after 30 seconds
