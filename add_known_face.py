@@ -1,67 +1,55 @@
-import face_recognition
 import os
+import cv2
 import pickle
-import sys
-import dlib
-import json
-from PIL import Image
-import numpy as np
+import face_recognition
 from dotenv import load_dotenv
 
-# Load environment variables
+# === Load environment variables ===
 load_dotenv()
-
 USERNAME = os.getenv("USERNAME")
-ENCODINGS_PATH = f"/home/{USERNAME}/face_project/encodings/faces.pkl"
-TMP_IMG = "/tmp/tmp_face.jpg"
 
-def save_encoding(image_path, name):
-    try:
-        # Force PIL save as RGB JPEG
-        pil = Image.open(image_path).convert("RGB")
-        pil.save(TMP_IMG, "JPEG")
+# === Paths ===
+BASE_DIR = f"/home/{USERNAME}/face_project"
+KNOWN_FACES_DIR = os.path.join(BASE_DIR, "known_faces")
+ENCODINGS_PATH = os.path.join(BASE_DIR, "encodings", "faces.pkl")
 
-        # Use face_recognition loader instead of dlib
-        image = face_recognition.load_image_file(TMP_IMG)
+encodings = []
+names = []
 
-        print(f"📐 Final image shape: {image.shape}, dtype: {image.dtype}")
+print("🧠 Scanning known_faces directory...")
 
-        encodings = face_recognition.face_encodings(image)
-        if not encodings:
-            print("❌ No face found in the image.")
-            return
+# === Traverse each person folder ===
+for person_name in os.listdir(KNOWN_FACES_DIR):
+    person_dir = os.path.join(KNOWN_FACES_DIR, person_name)
+    if not os.path.isdir(person_dir):
+        continue
 
-        encoding = encodings[0]
+    print(f"👤 Processing person: {person_name}")
+    for file_name in os.listdir(person_dir):
+        img_path = os.path.join(person_dir, file_name)
 
-    except Exception as e:
-        print(f"❌ face_recognition failed: {e}")
-        return
+        try:
+            image = face_recognition.load_image_file(img_path)
+            rgb = cv2.cvtColor(image, cv2.COLOR_BGR2RGB)
+            locations = face_recognition.face_locations(rgb)
 
-    # Load or create encodings file
-    if os.path.exists(ENCODINGS_PATH):
-        with open(ENCODINGS_PATH, "rb") as f:
-            data = pickle.load(f)
-        known_encodings = data.get("encodings", [])
-        known_names = data.get("names", [])
-    else:
-        known_encodings = []
-        known_names = []
+            if not locations:
+                print(f"❌ No face found in {file_name}, skipping.")
+                continue
 
-    known_encodings.append(encoding)
-    known_names.append(name)
+            encoding = face_recognition.face_encodings(rgb, known_face_locations=locations)[0]
+            encodings.append(encoding)
+            names.append(person_name)
+            print(f"✅ Encoded face from {file_name}")
 
+        except Exception as e:
+            print(f"❌ Error processing {file_name}: {e}")
+
+# === Save encodings to disk ===
+if not encodings:
+    print("❌ No encodings were generated. Aborting.")
+else:
     os.makedirs(os.path.dirname(ENCODINGS_PATH), exist_ok=True)
     with open(ENCODINGS_PATH, "wb") as f:
-        pickle.dump({"encodings": known_encodings, "names": known_names}, f)
-
-    print(f"✅ Successfully added '{name}' to known faces.")
-
-if __name__ == "__main__":
-    if len(sys.argv) != 3:
-        print("Usage: python add_known_face.py <image_path> <name>")
-        sys.exit(1)
-
-    image_path = sys.argv[1]
-    name = sys.argv[2]
-
-    save_encoding(image_path, name)
+        pickle.dump({"encodings": encodings, "names": names}, f)
+    print(f"💾 Saved {len(encodings)} face encodings to: {ENCODINGS_PATH}")

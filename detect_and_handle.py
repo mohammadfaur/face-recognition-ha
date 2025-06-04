@@ -23,7 +23,7 @@ with open("config.json") as f:
 
 TOLERANCE = config["recognition"].get("tolerance", 0.5)
 ENCODINGS_PATH = f"/home/{USERNAME}/face_project/encodings/faces.pkl"
-TMP_VIDEO_PATH = f"/home/{USERNAME}/face_project/ha_tmp_share/unknown_latest.mp4"
+TMP_VIDEO_PATH = f"/home/{USERNAME}/ha_tmp_share/unknown_latest.mp4"
 
 # === Load Known Encodings ===
 if not os.path.exists(ENCODINGS_PATH):

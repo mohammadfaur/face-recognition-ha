@@ -18,7 +18,7 @@ with open("config.json") as f:
     config = json.load(f)
 
 ENCODINGS_PATH = f"/home/{USERNAME}/face_project/encodings/faces.pkl"
-UNKNOWN_OUTPUT_PATH = f"/home/{USERNAME}/face_project/ha_tmp_share"
+UNKNOWN_OUTPUT_PATH = f"/home/{USERNAME}/ha_tmp_share"
 TOLERANCE = config["recognition"].get("tolerance", 0.5)
 CAPTURE_DURATION = 3  # seconds to record for unknown
 
