@@ -8,8 +8,9 @@
     "min_frames": 3
   },
   "video": {
-    "fps": 10,
-    "codec": "mp4v"
+    "fps": 8,
+    "codec": "mp4v",
+    "resolution": "960x540"
   },
   "home_assistant": {
     "base_url": "ENV_HA_BASE_URL",

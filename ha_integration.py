@@ -39,13 +39,19 @@ def send_to_home_assistant(config, result, video_path=None, name=None):
 
     elif result == "known":
         entity = config["home_assistant"].get("known_face_sensor")
-        name_entity = config["home_assistant"].get("name_text_entity")
+#        name_entity = config["home_assistant"].get("name_text_entity")
         if entity:
             print(f"📩 Turning ON: {entity}")
             post_to_ha("input_boolean/turn_on", {"entity_id": entity})
+#        if name_entity and name:
+#            print(f"📩 Updating HA: {name_entity} = '{name}'")
+#            post_to_ha("input_text/set_value", {"entity_id": name_entity, "value": name})
+
+    elif result == "setText":
+        name_entity = config["home_assistant"].get("name_text_entity")
         if name_entity and name:
             print(f"📩 Updating HA: {name_entity} = '{name}'")
-            post_to_ha("input_text/set_value", {"entity_id": name_entity, "value": name})
+            post_to_ha("input_text/set_value", {"entity_id": name_entity, "value": name})      
 
     elif result == "unknown":
         video_name_entity = config["home_assistant"].get("latest_unknown_video_text")
